@@ -2,12 +2,13 @@ WARNING: This is teaching material from a fictional company and contains ERRORS 
 
 This is the codebase of Microtrans Games Inc.
 
-
 ## Build instructions
 
 ### Linux
 
+```
 mkdir build
 cd build
 cmake ..
 make
+```
