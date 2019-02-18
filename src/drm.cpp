@@ -65,8 +65,6 @@ bool check_code(code_id id, const char* user_code) {
       strcpy(cached_user_code, user_code);
    }
  
-   // (A. Typical) TODO: if user_code not given, 
-   // compare against cached_user_code
    if (!strcmp(cached_real_code, cached_user_code)) {
       return true;
    }
