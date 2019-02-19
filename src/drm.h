@@ -1,6 +1,10 @@
 namespace drm {
 typedef unsigned int code_id;
 
+/*
+  Returns a random DRM code_id.
+  \return a code_id to be used with get_query/get_code.
+*/
 code_id get_random_code_id();
 
 /*
@@ -9,7 +13,7 @@ code_id get_random_code_id();
    \param result_query the resulting query will be written here
    \return 0 if successful
 */
-int const get_query(code_id id, char* result_query);
+int get_query(code_id id, char* result_query);
 
 /*
    Returns a user query for a given code_id.
@@ -17,7 +21,7 @@ int const get_query(code_id id, char* result_query);
    \param result_query the resulting query will be written here
    \return 0 if successful
 */
-int const get_code(code_id id, char* result_code);
+int get_code(code_id id, char* result_code);
 
 /*
   Checks a user entered code against the real code.

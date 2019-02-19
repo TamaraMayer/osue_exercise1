@@ -20,12 +20,11 @@ bool drm_check() {
    std::cin >> user_code;
 
    while(!drm::check_code(code_id, user_code.c_str())) {
-       if (++tries > max_tries) {
+       if (++tries >= max_tries) {
            std::cerr << "Invalid code, quitting!" << std::endl;
            return false;
        }
        std::cout << "Invalid code, try again!" << std::endl;
-       std::cout << query << std::endl;
        std::cin >> user_code;
    }
    return true;

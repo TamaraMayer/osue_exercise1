@@ -8,6 +8,8 @@
 
 #include <cstdio>
 #include <cstring> 
+#include <cstdlib>
+#include <ctime>
 
 namespace drm {
 
@@ -20,16 +22,17 @@ static const char* queries[] = {"Please enter the second word on page 5 in your 
                                 , "Please enter the 7th word on page 3 in your handbook."};
 
 code_id get_random_code_id() {
-   return 0;
+   std::srand(std::time(nullptr));
+   return std::rand() % MAX_CODES;
 }
 
 /*
   (A.Typical) TODO: this will retrieve the query string from somewhere else,
   consider this implementation temporary
 */
-int const get_query(code_id id, char* result_query) {
+int get_query(code_id id, char* result_query) {
    if (id < MAX_CODES) {
-      strcpy(result_query, queries[id]);
+      std::strcpy(result_query, queries[id]);
       return 0;
    }
    return -1;
@@ -39,9 +42,9 @@ int const get_query(code_id id, char* result_query) {
   (A.Typical) TODO: this will retrieve the query string from somewhere else,
   consider this implementation temporary
 */
-int const get_code(code_id id, char* result_code) {
+int get_code(code_id id, char* result_code) {
    if (id < MAX_CODES) {
-      strcpy(result_code, codes[id]);
+      std::strcpy(result_code, codes[id]);
       return 0;
    }
    return -1;
@@ -52,7 +55,7 @@ bool check_code(code_id id, const char* user_code) {
    static char cached_real_code[MAX_CODE_LEN] = "";
 
    // if we don't have the real code cached yet, retrieve it  now
-   if (strlen(cached_real_code) == 0) {
+   if (std::strlen(cached_real_code) == 0) {
       if (get_code(id, cached_real_code) != 0) {
          return false;
       }
@@ -62,10 +65,10 @@ bool check_code(code_id id, const char* user_code) {
    // it for further checks later - in case some
    // cracker skips the initial code check
    if (user_code != nullptr) {
-      strcpy(cached_user_code, user_code);
+      std::strcpy(cached_user_code, user_code);
    }
  
-   if (!strcmp(cached_real_code, cached_user_code)) {
+   if (!std::strcmp(cached_real_code, cached_user_code)) {
       return true;
    }
    return false;
