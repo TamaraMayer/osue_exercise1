@@ -14,5 +14,5 @@ A. Typical was tasked with the most important aspect of the game - the copy prot
 - The user has access to the binary.
 - The user does not have access to the binary, so when Ryskim is running on a closed system like a console or some server.
 
-You can find A. Typical's work in src/drm.h and src/drm.cpp. I think Cohn also left some sour comment in main.cpp, perhaps it can help. 
+You can find A. Typical's work in src/drm.h and src/drm.cpp. I think Cohn also left some sour comment in main.cpp, perhaps it can help. It seems A. Typical is coming from a C background and only partially adopted C++ practices.
 
