@@ -11,14 +11,16 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release/${TARGET_ABI}/bin
 
 include_directories (
 	"${CMAKE_SOURCE_DIR}/src"
-	"${CMAKE_SOURCE_DIR}/engine/manager/include"
-	"${CMAKE_SOURCE_DIR}/engine/synthesis/dnn/include"
-	"${CMAKE_SOURCE_DIR}/external/mimic/include"
-	"${CMAKE_SOURCE_DIR}/external/eigen"
-	"${CMAKE_SOURCE_DIR}/external/protobuf"
+	"${CMAKE_SOURCE_DIR}/lib/raylib-macos/include"
 	)
 
-add_executable (ryksim
+
+link_directories(${CMAKE_SOURCE_DIR}/lib/raylib-macos/lib)
+
+add_executable (ryskim
     "src/drm.cpp"
+	"src/game.cpp"
     "src/main.cpp"
     )
+
+target_link_libraries(ryskim raylib)

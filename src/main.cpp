@@ -1,8 +1,10 @@
 #include <iostream>
 
 #include "drm.h"
+#include "game.h"
 
 bool drm_check() {
+   return true;
    // (C.Jarmack) the DRM API is awful as it doesn't tell us the maximum string size
    // for its get_query and get_code calls... we have to do something about this.
    // could we PLEASE use C++ strings in future?
@@ -35,5 +37,6 @@ int main(int argc, char* argv[]) {
        return -1;
    }
    std::cout << "Welcome to Ryskim! Loading..." << std::endl;
+   game::run();
    return 0;
 }
