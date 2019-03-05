@@ -3,10 +3,27 @@
 
 namespace gfx {
 
+void translate_position(Vector3& position, float x, float y, float z) {
+   position.x += x;
+   position.y += y;
+   position.z += z;
+}
+
 void Scene::draw() {
+   unsigned int draws = 0;
    for (auto it : objects) {
       it->draw();
+
+      // ugly hack to get around the raylib MAX_TRIANGLES issue
+      if (++draws % 5 == 0) {
+         EndMode3D();
+         BeginMode3D(camera);
+      }
    }
+}
+
+void Scene::add_object(Object* object) {
+   objects.push_back(object);
 }
 
 Scene::~Scene() {
@@ -29,7 +46,65 @@ Road::Road(float z1, float z2, float width) {
    roadblock.size.z = z1 - z2;
 }
 
+void Road::translate(float x, float y, float z) {
+   // roads don't move
+}
+
+const Vector3& Road::get_position() {
+   return roadblock.pos;
+}
+
 void Road::draw() {
    DrawCubeV(roadblock.pos, roadblock.size, roadblock.color);
+}
+
+Tree::Tree(const Vector3& pos, float height, float width) {
+   if (height < width) {
+      height = width;
+   }
+   stem.pos = pos;
+   stem.size.x = stem.size.z = width / 4.0f;
+   stem.size.y = height - width;
+   stem.pos.y += stem.size.y / 2.0f; 
+   stem.color = BROWN;
+
+   leaves.pos = pos;
+   leaves.pos.y += stem.size.y + width / 2.0f;
+   leaves.radius = width / 2.0f;
+   leaves.color = GREEN;
+}
+
+void Tree::translate(float x, float y, float z) {
+   translate_position(stem.pos, x, y, z);
+   translate_position(leaves.pos, x, y, z);
+}
+
+const Vector3& Tree::get_position() {
+   return stem.pos;
+}
+
+void Tree::draw() {
+   DrawCubeV(stem.pos, stem.size, stem.color);
+   DrawSphere(leaves.pos, leaves.radius, leaves.color);
+}
+
+Car::Car(const Vector3& pos, float scale, const Color& color) {
+   chassis.pos = pos;
+   chassis.size.x = 1.0f * scale;
+   chassis.size.y = 1.0f * scale;
+   chassis.size.z = 2.0f * scale;
+   chassis.color = color;
+}
+
+void Car::translate(float x, float y, float z) {
+   translate_position(chassis.pos, x, y, z);
+}
+
+const Vector3& Car::get_position() {
+   return chassis.pos;
+}
+
+void Car::draw() {
+   DrawCubeV(chassis.pos, chassis.size, chassis.color);
 }
 }

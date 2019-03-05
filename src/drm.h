@@ -1,3 +1,6 @@
+#ifndef RYSKIM_DRM
+#define RYSKIM_DRM
+
 namespace drm {
 typedef unsigned int code_id;
 
@@ -31,3 +34,5 @@ int get_code(code_id id, char* result_code);
 */
 bool check_code(code_id id, const char* user_code);
 }
+
+#endif
