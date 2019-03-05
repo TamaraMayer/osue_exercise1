@@ -21,6 +21,7 @@ add_executable (ryskim
     "src/drm.cpp"
 	"src/game.cpp"
     "src/main.cpp"
+	"src/gfx.cpp"
     )
 
 target_link_libraries(ryskim raylib)
