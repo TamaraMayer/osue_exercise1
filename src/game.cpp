@@ -1,5 +1,8 @@
+#include <cstdio>
+#include <cmath>
 #include <iostream>
 #include <random>
+#include <vector>
 
 #include "gfx.h"
 
@@ -9,7 +12,9 @@ struct Level {
    float road_len = 300.0f;
    float road_width = 10.0f;
    float tree_dist = 10.0f;
+   double spawn_interval = 1.0f;
 };
+
 
 class Ryder {
    Vector3 velocity = {0.0f, 0.0f, 0.0f};
@@ -17,10 +22,49 @@ class Ryder {
    // when the scene graph deletes it and we dont know?
    // we'll access garbage and in the best case crash
    // at least the ownership model is clearly documented in "Scene"
+   // An even better solution might be to have the Scene Graph only hold weak pointers
+   // and have this bject own the gfx object, so it will be deleted
+   // when this game objects dies, and the scene graph can detect it as well.
    gfx::Object* model; 
   public:
    Ryder(const Vector3& pos, float scale, const Color& color) {
       model = new gfx::Car(pos, scale, color);
+   }
+
+   void accelerate(float x, float y, float z) {
+      velocity.x += x;
+      velocity.y += y;
+      velocity.z += z;
+   }
+
+   void update(float time_passed) {
+      model->translate(
+         velocity.x * time_passed,
+         velocity.y * time_passed,
+         velocity.z * time_passed);
+      velocity.x *= std::pow(0.01f, time_passed);
+      velocity.y *= std::pow(0.2f, time_passed);
+      velocity.z *= std::pow(0.5f, time_passed);
+   }
+
+   const Vector3& get_position() {
+      return model->get_position();
+   }
+
+   gfx::Object* get_model() {
+      return model;
+   }
+};
+
+
+class Enemy {
+   Vector3 velocity = {0.0f, 0.0f, 0.0f};
+   // C. Jarmack: same issue as in "Ryder"
+   gfx::Object* model; 
+  public:
+   Enemy(const Vector3& pos, float scale, const Color& color) {
+      model = new gfx::Car(pos, scale, color);
+      velocity.z = 1.0f;
    }
 
    void accelerate(float x, float y, float z) {
@@ -44,6 +88,8 @@ class Ryder {
       return model;
    }
 };
+typedef std::vector<Enemy*> Enemies;
+
 
 void init() {
    int screenWidth = 1024;
@@ -92,6 +138,31 @@ void generate_trees(gfx::Scene& scene, const Level& level) {
    std::cout << "Planting " << tree_num << " trees." << std::endl;
 }
 
+void spawn_random_enemy(Enemies& enemies, Ryder& player, gfx::Scene& scene, Level& level) {
+   static std::default_random_engine generator;
+   std::uniform_int_distribution<unsigned char> color_distribution(50, 200);
+   std::normal_distribution<float> scale_distribution(1.0f, 0.1f);
+   float scale = scale_distribution(generator);
+   std::uniform_real_distribution<float> x_distribution(
+                        -(level.road_width - scale) / 2.0f,
+                        (level.road_width - scale) / 2.0f);
+   Color color = {color_distribution(generator),
+                  color_distribution(generator),
+                  255,
+                  255};
+   std::cout << "Color" << std::endl;
+   std::cout << (int)color.r << std::endl;
+   std::cout << (int)color.g << std::endl;
+   std::cout << (int)color.b << std::endl;
+   Vector3 position = {x_distribution(generator),
+                       0.5f,
+                       player.get_position().z - 30.0f};
+   Enemy* enemy = new Enemy(position, scale, color);
+   enemy->accelerate(0.0f, 0.0f, 10.0f);
+   enemies.push_back(enemy);
+   scene.add_object(enemy->get_model()); 
+}
+
 void run() {
    init();
 
@@ -107,9 +178,18 @@ void run() {
    // plant a couple trees for visual pleasure
    generate_trees(scene, level);
 
+   // green grass
+   Color ground_color = { 0, 117, 44, 255 }; 
+
+   // the player
    Vector3 playerPosition = {0.0f, 0.5f, 2.0f};
    Ryder ryder(playerPosition, 1.0f, RED);
    scene.add_object(ryder.get_model());
+
+   // enemies
+   Enemies enemies;
+
+   double last_spawn = GetTime();
 
    bool collision = false;
 
@@ -132,6 +212,17 @@ void run() {
       // follow cam
       scene.get_camera().position.z = ryder.get_position().z + cam_distance;
       scene.get_camera().target.z = ryder.get_position().z;
+
+      // spawn new enemies
+      if (GetTime() - last_spawn > level.spawn_interval) {
+         last_spawn = GetTime();
+         spawn_random_enemy(enemies, ryder, scene, level);
+      }
+
+      // update enemies
+      for (auto enemy : enemies) {
+         enemy->update(GetFrameTime());
+      }
 
       // collisions
       collision = false;
@@ -169,26 +260,21 @@ void run() {
       else
          playerColor = GREEN;
       */
+
+      // remove enemies who passed
+
       //----------------------------------------------------------------------------------
 
       // Draw
       //----------------------------------------------------------------------------------
       BeginDrawing();
-
-      ClearBackground(RAYWHITE);
-
+      ClearBackground(ground_color);
       BeginMode3D(scene.get_camera());
-
       scene.draw();
-
       //DrawGrid(100, 1.0f); // Draw a grid
-
       EndMode3D();
-
       //DrawText("Move player with cursors to collide", 220, 40, 20, GRAY);
-
       DrawFPS(10, 10);
-
       EndDrawing();
    }
 
