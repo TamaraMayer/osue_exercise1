@@ -51,6 +51,10 @@ class Ryder {
       return model->get_position();
    }
 
+   const Vector3& get_velocity() {
+      return velocity;
+   }
+
    gfx::Object* get_model() {
       return model;
    }
@@ -140,8 +144,9 @@ void generate_trees(gfx::Scene& scene, const Level& level) {
 
 void spawn_random_enemy(Enemies& enemies, Ryder& player, gfx::Scene& scene, Level& level) {
    static std::default_random_engine generator;
-   std::uniform_int_distribution<unsigned char> color_distribution(50, 200);
-   std::normal_distribution<float> scale_distribution(1.0f, 0.1f);
+   static std::uniform_int_distribution<unsigned char> color_distribution(50, 200);
+   static std::normal_distribution<float> scale_distribution(1.0f, 0.1f);
+   static std::normal_distribution<float> speed_distribution(10.0f, 0.5f);
    float scale = scale_distribution(generator);
    std::uniform_real_distribution<float> x_distribution(
                         -(level.road_width - scale) / 2.0f,
@@ -150,15 +155,11 @@ void spawn_random_enemy(Enemies& enemies, Ryder& player, gfx::Scene& scene, Leve
                   color_distribution(generator),
                   255,
                   255};
-   std::cout << "Color" << std::endl;
-   std::cout << (int)color.r << std::endl;
-   std::cout << (int)color.g << std::endl;
-   std::cout << (int)color.b << std::endl;
    Vector3 position = {x_distribution(generator),
                        0.5f,
-                       player.get_position().z - 30.0f};
+                       player.get_position().z - 40.0f};
    Enemy* enemy = new Enemy(position, scale, color);
-   enemy->accelerate(0.0f, 0.0f, 10.0f);
+   enemy->accelerate(0.0f, 0.0f, speed_distribution(generator));
    enemies.push_back(enemy);
    scene.add_object(enemy->get_model()); 
 }
@@ -169,7 +170,7 @@ void run() {
    // generate level and renderer scene
    Level level;
    gfx::Scene scene(get_default_camera());
-   float cam_distance = 15.0f;
+   float cam_distance = 10.0f;
 
    // build the road
    auto road = new gfx::Road(10.0f, -level.road_len, level.road_width);
@@ -211,7 +212,7 @@ void run() {
 
       // follow cam
       scene.get_camera().position.z = ryder.get_position().z + cam_distance;
-      scene.get_camera().target.z = ryder.get_position().z;
+      scene.get_camera().target.z = ryder.get_position().z - 7.0f - 0.1 * std::fabs(ryder.get_velocity().z);
 
       // spawn new enemies
       if (GetTime() - last_spawn > level.spawn_interval) {
