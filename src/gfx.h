@@ -1,3 +1,9 @@
+/*
+   Ryskim graphics module.
+   Microtrans Games Inc.
+
+   Author: Cro Magnon, 2019
+*/
 #ifndef RYSKIM_GFX
 #define RYSKIM_GFX
 
@@ -6,6 +12,9 @@
 
 namespace gfx {
 
+/**
+ * Represents a graphical object in a scene
+ **/
 class Object {
  public:
    Object() {}
@@ -15,6 +24,10 @@ class Object {
    virtual ~Object() {}
 };
 
+
+/**
+ * Represents a scene with Camera and graphical objects
+ **/
 class Scene {
    Camera camera;
    std::vector<Object *> objects;
@@ -28,9 +41,11 @@ class Scene {
     * \param object the Object to add.
     **/
    void add_object(Object* object);
+   void remove_object(Object* object);
    inline Camera& get_camera() { return camera; }
    ~Scene();
 };
+
 
 struct Line {
    Vector3 start;
@@ -38,17 +53,20 @@ struct Line {
    Color color;
 };
 
+
 struct Cube {
    Vector3 pos;
    Vector3 size;
    Color color;
 };
 
+
 struct Sphere {
    Vector3 pos;
    float radius;
    Color color;
 };
+
 
 class Road : public Object {
    Cube roadblock;
@@ -75,6 +93,7 @@ class Tree : public Object {
    void draw() override;
 };
 
+
 class Car : public Object {
    Cube chassis;
  public:
@@ -83,8 +102,6 @@ class Car : public Object {
    virtual const Vector3& get_position() override;
    void draw() override;
 };
-
-
 } // namespace gfx
 
 #endif

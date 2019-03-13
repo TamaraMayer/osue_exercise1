@@ -1,3 +1,9 @@
+/*
+   Digital Rights Management (DRM) module.
+   Microtrans Games Inc.
+
+   Author: Ada Typical, 2019
+*/
 #ifndef RYSKIM_DRM
 #define RYSKIM_DRM
 

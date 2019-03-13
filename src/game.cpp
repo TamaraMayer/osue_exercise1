@@ -1,3 +1,9 @@
+/*
+   Ryskim game logic module.
+   Microtrans Games Inc.
+
+   Author: Bilbo Bellic, 2019
+*/
 #include <cstdio>
 #include <cmath>
 #include <iostream>
@@ -13,18 +19,23 @@ struct Level {
    float road_width = 10.0f;
    float tree_dist = 10.0f;
    double spawn_interval = 1.0f;
+   float enemy_cull_distance = 30.0f;
 };
 
 
 class Ryder {
    Vector3 velocity = {0.0f, 0.0f, 0.0f};
    // C. Jarmack: this could be a C++ weak pointer, what happens
-   // when the scene graph deletes it and we dont know?
+   // when the scene graph deletes it and we don't know?
    // we'll access garbage and in the best case crash
-   // at least the ownership model is clearly documented in "Scene"
-   // An even better solution might be to have the Scene Graph only hold weak pointers
-   // and have this bject own the gfx object, so it will be deleted
-   // when this game objects dies, and the scene graph can detect it as well.
+   // at least the ownership model is clearly documented in "Scene" - the scene graph
+   // cleans up when it shuts down.
+   // But when we manually remove elements from the scene graph, we have to be careful 
+   // about memory leaks and manually delete the gfx object as well as the game object.
+   // I'm not really happy about this solution... I'd rather have the Scene Graph
+   // only hold weak pointers without ownership and have this object own the gfx object,
+   // so it will be deleted
+   // when this game objects dies (and with a C++ weak pointer the scene graph can detect it as well).
    gfx::Object* model; 
   public:
    Ryder(const Vector3& pos, float scale, const Color& color) {
@@ -108,7 +119,6 @@ void shutdown() {
 }
 
 Camera get_default_camera() {
-   // Define the camera to look into our 3d world
    Camera camera = {0};
    camera.position = (Vector3){0.0f, 15.0f, 10.0f};
    camera.target = (Vector3){0.0f, 0.0f, 0.0f};
@@ -221,8 +231,22 @@ void run() {
       }
 
       // update enemies
-      for (auto enemy : enemies) {
+      for (auto it = std::begin(enemies);
+                it != std::end(enemies);) {
+
+         auto enemy = *it;
          enemy->update(GetFrameTime());
+
+         // if enemy far away from us, then remove them
+         if (enemy->get_position().z - ryder.get_position().z > level.enemy_cull_distance) {
+            std::cout << "Removing enemy" << std::endl;
+            scene.remove_object(enemy->get_model());
+            it = enemies.erase(it);
+            delete enemy;
+         }
+         else {
+            ++it;
+         }
       }
 
       // collisions
@@ -263,9 +287,9 @@ void run() {
       */
 
       // remove enemies who passed
+      
 
       //----------------------------------------------------------------------------------
-
       // Draw
       //----------------------------------------------------------------------------------
       BeginDrawing();

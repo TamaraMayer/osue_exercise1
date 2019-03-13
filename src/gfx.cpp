@@ -1,3 +1,11 @@
+/*
+   Ryskim graphics module.
+   Microtrans Games Inc.
+
+   Author: Cro Magnon, 2019
+*/
+#include <algorithm>
+
 #include "gfx.h"
 #include "util.h"
 
@@ -9,6 +17,7 @@ void translate_position(Vector3& position, float x, float y, float z) {
    position.z += z;
 }
 
+//================================ SCENE =====================================
 void Scene::draw() {
    unsigned int draws = 0;
    for (auto it : objects) {
@@ -26,12 +35,19 @@ void Scene::add_object(Object* object) {
    objects.push_back(object);
 }
 
+void Scene::remove_object(Object* object) {
+   objects.erase(
+      std::remove(objects.begin(), objects.end(), object),
+      objects.end());
+}
+
 Scene::~Scene() {
    for (auto it : objects) {
       delete it;
    }
 }
 
+//================================ ROAD =====================================
 Road::Road(float z1, float z2, float width) {
    if (z1 < z2) { 
       util::swap(z1, z2);
@@ -58,6 +74,7 @@ void Road::draw() {
    DrawCubeV(roadblock.pos, roadblock.size, roadblock.color);
 }
 
+//================================ TREE =====================================
 Tree::Tree(const Vector3& pos, float height, float width) {
    if (height < width) {
       height = width;
@@ -88,6 +105,7 @@ void Tree::draw() {
    DrawSphere(leaves.pos, leaves.radius, leaves.color);
 }
 
+//================================ CAR =====================================
 Car::Car(const Vector3& pos, float scale, const Color& color) {
    chassis.pos = pos;
    chassis.size.x = 1.0f * scale;
