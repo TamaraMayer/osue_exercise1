@@ -106,7 +106,7 @@ class Enemy {
 typedef std::vector<Enemy*> Enemies;
 
 
-void init() {
+static void init() {
    int screenWidth = 1024;
    int screenHeight = 768;
 
@@ -114,11 +114,11 @@ void init() {
    SetTargetFPS(60);
 }
 
-void shutdown() {
+static void shutdown() {
    CloseWindow();
 }
 
-Camera get_default_camera() {
+static Camera get_default_camera() {
    Camera camera = {0};
    camera.position = (Vector3){0.0f, 15.0f, 10.0f};
    camera.target = (Vector3){0.0f, 0.0f, 0.0f};
@@ -129,7 +129,7 @@ Camera get_default_camera() {
    return camera;
 }
 
-void generate_trees(gfx::Scene& scene, const Level& level) {
+static void generate_trees(gfx::Scene& scene, const Level& level) {
    std::default_random_engine generator;
    std::normal_distribution<float> height_distribution(5.0, 0.01);
    std::normal_distribution<float> width_distribution(3.0, 0.2);
@@ -152,7 +152,7 @@ void generate_trees(gfx::Scene& scene, const Level& level) {
    std::cout << "Planting " << tree_num << " trees." << std::endl;
 }
 
-void spawn_random_enemy(Enemies& enemies, Ryder& player, gfx::Scene& scene, Level& level) {
+static void spawn_random_enemy(Enemies& enemies, Ryder& player, gfx::Scene& scene, Level& level) {
    static std::default_random_engine generator;
    static std::uniform_int_distribution<unsigned char> color_distribution(50, 200);
    static std::normal_distribution<float> scale_distribution(1.0f, 0.1f);
@@ -205,12 +205,8 @@ void run() {
    bool collision = false;
 
    while (!WindowShouldClose()) {
-      // Update
-      //----------------------------------------------------------------------------------
-
-      // Move player
+      // input handling
       if (IsKeyDown(KEY_RIGHT))
-         //ryder.accelerate()
          ryder.accelerate(1.0f, 0.0f, 0.0f);
       if (IsKeyDown(KEY_LEFT))
          ryder.accelerate(-1.0f, 0.0f, 0.0f);
@@ -220,7 +216,7 @@ void run() {
          ryder.accelerate(0.0f, 0.0f, -1.0f);
       ryder.update(GetFrameTime());
 
-      // follow cam
+      // update follow cam
       scene.get_camera().position.z = ryder.get_position().z + cam_distance;
       scene.get_camera().target.z = ryder.get_position().z - 7.0f - 0.1 * std::fabs(ryder.get_velocity().z);
 
@@ -230,7 +226,7 @@ void run() {
          spawn_random_enemy(enemies, ryder, scene, level);
       }
 
-      // update enemies
+      // update existing enemies
       for (auto it = std::begin(enemies);
                 it != std::end(enemies);) {
 
@@ -239,7 +235,6 @@ void run() {
 
          // if enemy far away from us, then remove them
          if (enemy->get_position().z - ryder.get_position().z > level.enemy_cull_distance) {
-            std::cout << "Removing enemy" << std::endl;
             scene.remove_object(enemy->get_model());
             it = enemies.erase(it);
             delete enemy;
@@ -298,7 +293,6 @@ void run() {
       scene.draw();
       //DrawGrid(100, 1.0f); // Draw a grid
       EndMode3D();
-      //DrawText("Move player with cursors to collide", 220, 40, 20, GRAY);
       DrawFPS(10, 10);
       EndDrawing();
    }
