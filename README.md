@@ -16,3 +16,12 @@ A. Typical was tasked with the most important aspect of the game - the copy prot
 
 You can find A. Typical's work in src/drm.h and src/drm.cpp. I think Cohn also left some sour comment in main.cpp, perhaps it can help. It seems A. Typical is coming from a C background and only partially adopted C++ practices.
 
+Can you give suggestions on how to improve this?
+
+
+## 2. Memory issues
+
+B. Bellic was responsible for the game logic. The testers found that the game sucks up lots of memory after just 20 hours of gaming. Might be a memory leak or some similar issue.
+So please check src/game.h and src/game.cpp if there is some issue with the game logic that could lead to memory usage going up over time (Hint: check elements that are created and destroyed over the game lifetime).
+
+Could you suggest quick fixes or the problems you encounter and ideally also general architecture improvements to avoid such issues in future?
