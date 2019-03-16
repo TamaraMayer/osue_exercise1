@@ -12,7 +12,29 @@
 
 namespace gfx {
 
-void translate_position(Vector3& position, float x, float y, float z) {
+static const int screen_width = 1024;
+static const int screen_height = 768;
+
+
+void init() {
+   InitWindow(screen_width, screen_height, "Ryskim");
+   SetTargetFPS(60);
+}
+
+void shutdown() {
+   CloseWindow();
+}
+
+int window_width() {
+   return screen_width;
+}
+
+int window_height() {
+   return screen_height;
+}
+
+
+static void translate_position(Vector3& position, float x, float y, float z) {
    position.x += x;
    position.y += y;
    position.z += z;
@@ -56,7 +78,7 @@ Road::Road(float z1, float z2, float width) {
 
    roadblock.color = GRAY;
    roadblock.pos.x = 0.0f;
-   roadblock.pos.y = -0.2f; //#roadblock.pos.x - width / 2.0f
+   roadblock.pos.y = -0.3f; //#roadblock.pos.x - width / 2.0f
    roadblock.pos.z = (z1 + z2) / 2.0f;
    roadblock.size.x = width;
    roadblock.size.y = 0.4f;
@@ -113,10 +135,19 @@ Car::Car(const Vector3& pos, float scale, const Color& color) {
    chassis.size.y = 1.0f * scale;
    chassis.size.z = 2.0f * scale;
    chassis.color = color;
+
+   bounding_box.min = (Vector3){pos.x - chassis.size.x / 2.0f,
+                                pos.y - chassis.size.y / 2.0f,
+                                pos.z - chassis.size.z / 2.0f};
+   bounding_box.max = (Vector3){pos.x + chassis.size.x / 2.0f,
+                                pos.y + chassis.size.y / 2.0f,
+                                pos.z + chassis.size.z / 2.0f};
 }
 
 void Car::translate(float x, float y, float z) {
    translate_position(chassis.pos, x, y, z);
+   translate_position(bounding_box.min, x, y, z);
+   translate_position(bounding_box.max, x, y, z);
 }
 
 const Vector3& Car::get_position() {

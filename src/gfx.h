@@ -12,15 +12,24 @@
 
 namespace gfx {
 
+
+void init();
+void shutdown();
+int window_width();
+int window_height();
+
 /**
  * Represents a graphical object in a scene
  **/
 class Object {
+ protected:
+   BoundingBox bounding_box;
  public:
    Object() {}
    virtual void draw() = 0;
    virtual void translate(float x, float y, float z) = 0;
    virtual const Vector3& get_position() = 0;
+   virtual const BoundingBox& get_bounding_box() { return bounding_box; }
    virtual ~Object() {}
 };
 

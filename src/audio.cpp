@@ -68,6 +68,9 @@ namespace audio {
    }
 
    Stream::~Stream() {
+      if (playing) {
+         StopAudioStream(stream);
+      }
       CloseAudioStream(stream);
    }
 

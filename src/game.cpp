@@ -9,6 +9,8 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 #include "gfx.h"
 #include "audio.h"
@@ -26,7 +28,7 @@ struct Level {
    float road_width = 10.0f;
    float tree_dist = 10.0f;
    float enemy_cull_distance = 30.0f;
-   double spawn_interval = 1.0f;
+   double spawn_interval = 0.5f;
 };
 
 
@@ -132,12 +134,9 @@ typedef std::vector<Enemy*> Enemies;
  * Initializes the game
  **/
 static void init() {
-   int screenWidth = 1024;
-   int screenHeight = 768;
-
-   InitWindow(screenWidth, screenHeight, "Ryskim");
-   SetTargetFPS(60);
-
+   std::cout << "Initializing graphics subsystem..." << std::endl;
+   gfx::init();
+   std::cout << "Initializing audio subsystem..." << std::endl;
    audio::init();
 }
 
@@ -145,8 +144,11 @@ static void init() {
  * Shuts the game down
  **/
 static void shutdown() {
+   std::cout << "Shutting down audio subsystem" << std::endl;
    audio::shutdown();
-   CloseWindow();
+   std::this_thread::sleep_for(std::chrono::milliseconds(200));
+   std::cout << "Shuttding down graphics subsystem" << std::endl;
+   gfx::shutdown();
 }
 
 /**
@@ -196,7 +198,7 @@ static void spawn_random_enemy(Enemies& enemies, Ryder& player, gfx::Scene& scen
    static std::default_random_engine generator;
    static std::uniform_int_distribution<unsigned char> color_distribution(50, 200);
    static std::normal_distribution<float> scale_distribution(1.0f, 0.1f);
-   static std::normal_distribution<float> speed_distribution(10.0f, 0.5f);
+   static std::normal_distribution<float> speed_distribution(23.0f, 0.5f);
    float scale = scale_distribution(generator);
    std::uniform_real_distribution<float> x_distribution(
                         -(level.road_width - scale) / 2.0f,
@@ -207,7 +209,7 @@ static void spawn_random_enemy(Enemies& enemies, Ryder& player, gfx::Scene& scen
                   255};
    Vector3 position = {x_distribution(generator),
                        0.5f,
-                       player.get_position().z - 70.0f};
+                       player.get_position().z - 90.0f};
    Enemy* enemy = new Enemy(position, scale, color);
    enemy->accelerate(0.0f, 0.0f, speed_distribution(generator));
    enemies.push_back(enemy);
@@ -295,49 +297,24 @@ void game_loop() {
          else {
             ++it;
          }
+
+         // check collisions of player with this enemy
+         if (CheckCollisionBoxes(ryder.get_model()->get_bounding_box(),
+                                enemy->get_model()->get_bounding_box())) {
+            //enemy->get_model()->translate(0.0f, 0.0f, -1.0f);
+            BeginDrawing();
+            ClearBackground(BLACK);
+            BeginMode3D(scene.get_camera());
+            scene.draw();
+            EndMode3D();
+            DrawText("FAIL", gfx::window_width() / 2 - 100, gfx::window_height() / 2, 70, RED);
+            EndDrawing();
+            std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+            return;
+         }
       }
 
-      // collisions
-      collision = false;
-
-      /*
-      // Check collisions player vs enemy-box
-      if (CheckCollisionBoxes(
-              (BoundingBox){(Vector3){playerPosition.x - playerSize.x / 2,
-                                      playerPosition.y - playerSize.y / 2,
-                                      playerPosition.z - playerSize.z / 2},
-                            (Vector3){playerPosition.x + playerSize.x / 2,
-                                      playerPosition.y + playerSize.y / 2,
-                                      playerPosition.z + playerSize.z / 2}},
-              (BoundingBox){(Vector3){enemyBoxPos.x - enemyBoxSize.x / 2,
-                                      enemyBoxPos.y - enemyBoxSize.y / 2,
-                                      enemyBoxPos.z - enemyBoxSize.z / 2},
-                            (Vector3){enemyBoxPos.x + enemyBoxSize.x / 2,
-                                      enemyBoxPos.y + enemyBoxSize.y / 2,
-                                      enemyBoxPos.z + enemyBoxSize.z / 2}}))
-         collision = true;
-
-      // Check collisions player vs enemy-sphere
-      if (CheckCollisionBoxSphere(
-              (BoundingBox){(Vector3){playerPosition.x - playerSize.x / 2,
-                                      playerPosition.y - playerSize.y / 2,
-                                      playerPosition.z - playerSize.z / 2},
-                            (Vector3){playerPosition.x + playerSize.x / 2,
-                                      playerPosition.y + playerSize.y / 2,
-                                      playerPosition.z + playerSize.z / 2}},
-              enemySpherePos, enemySphereSize))
-         collision = true;
-
-      if (collision)
-         playerColor = RED;
-      else
-         playerColor = GREEN;
-      */
-
-
-      //----------------------------------------------------------------------------------
       // Draw
-      //----------------------------------------------------------------------------------
       BeginDrawing();
       ClearBackground(ground_color);
       BeginMode3D(scene.get_camera());
