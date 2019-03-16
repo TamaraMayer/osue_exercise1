@@ -14,15 +14,24 @@
 
 namespace game {
 
+
+//==============================  GAME ELEMENTS ===============================
+
+/**
+ * Some parameters defining the level
+ **/
 struct Level {
    float road_len = 300.0f;
    float road_width = 10.0f;
    float tree_dist = 10.0f;
-   double spawn_interval = 1.0f;
    float enemy_cull_distance = 30.0f;
+   double spawn_interval = 1.0f;
 };
 
 
+/**
+ * Represents the player character
+ **/
 class Ryder {
    Vector3 velocity = {0.0f, 0.0f, 0.0f};
    // C. Jarmack: this could be a C++ weak pointer, what happens
@@ -46,6 +55,10 @@ class Ryder {
       velocity.x += x;
       velocity.y += y;
       velocity.z += z;
+      // no driving back
+      if( velocity.z > 0.0f) {
+         velocity.z = 0.0f;
+      }
    }
 
    void update(float time_passed) {
@@ -72,6 +85,9 @@ class Ryder {
 };
 
 
+/**
+ * Represents enemy vehicles
+ **/
 class Enemy {
    Vector3 velocity = {0.0f, 0.0f, 0.0f};
    // C. Jarmack: same issue as in "Ryder"
@@ -106,6 +122,11 @@ class Enemy {
 typedef std::vector<Enemy*> Enemies;
 
 
+//===============================  GAME FUNCTIONS =============================
+
+/**
+ * Initializes the game
+ **/
 static void init() {
    int screenWidth = 1024;
    int screenHeight = 768;
@@ -114,10 +135,16 @@ static void init() {
    SetTargetFPS(60);
 }
 
+/**
+ * Shuts the game down
+ **/
 static void shutdown() {
    CloseWindow();
 }
 
+/**
+ * Sets up a default camera view
+ **/
 static Camera get_default_camera() {
    Camera camera = {0};
    camera.position = (Vector3){0.0f, 15.0f, 10.0f};
@@ -129,6 +156,9 @@ static Camera get_default_camera() {
    return camera;
 }
 
+/**
+ * Generate trees along the road
+ **/
 static void generate_trees(gfx::Scene& scene, const Level& level) {
    std::default_random_engine generator;
    std::normal_distribution<float> height_distribution(5.0, 0.01);
@@ -152,6 +182,9 @@ static void generate_trees(gfx::Scene& scene, const Level& level) {
    std::cout << "Planting " << tree_num << " trees." << std::endl;
 }
 
+/**
+ * Spawn an enemy with random properties in front of the player
+ **/
 static void spawn_random_enemy(Enemies& enemies, Ryder& player, gfx::Scene& scene, Level& level) {
    static std::default_random_engine generator;
    static std::uniform_int_distribution<unsigned char> color_distribution(50, 200);
@@ -174,6 +207,9 @@ static void spawn_random_enemy(Enemies& enemies, Ryder& player, gfx::Scene& scen
    scene.add_object(enemy->get_model()); 
 }
 
+/**
+ * Game main loop
+ **/
 void run() {
    init();
 
@@ -183,7 +219,7 @@ void run() {
    float cam_distance = 10.0f;
 
    // build the road
-   auto road = new gfx::Road(10.0f, -level.road_len, level.road_width);
+   auto road = new gfx::Road(30.0f, -level.road_len, level.road_width);
    scene.add_object(road);
 
    // plant a couple trees for visual pleasure
@@ -199,7 +235,6 @@ void run() {
 
    // enemies
    Enemies enemies;
-
    double last_spawn = GetTime();
 
    bool collision = false;
@@ -233,9 +268,11 @@ void run() {
          auto enemy = *it;
          enemy->update(GetFrameTime());
 
-         // if enemy far away from us, then remove them
+         // if enemy far away from us, remove them
          if (enemy->get_position().z - ryder.get_position().z > level.enemy_cull_distance) {
+            // remove the gfx object (model) from the gfx scene
             scene.remove_object(enemy->get_model());
+            // remove the game oject from the enemies list
             it = enemies.erase(it);
             delete enemy;
          }
@@ -281,8 +318,6 @@ void run() {
          playerColor = GREEN;
       */
 
-      // remove enemies who passed
-      
 
       //----------------------------------------------------------------------------------
       // Draw
