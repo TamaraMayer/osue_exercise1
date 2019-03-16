@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "gfx.h"
+#include "audio.h"
 
 namespace game {
 
@@ -46,6 +47,7 @@ class Ryder {
    // so it will be deleted
    // when this game objects dies (and with a C++ weak pointer the scene graph can detect it as well).
    gfx::Object* model; 
+   audio::Stream sound;
   public:
    Ryder(const Vector3& pos, float scale, const Color& color) {
       model = new gfx::Car(pos, scale, color);
@@ -69,6 +71,8 @@ class Ryder {
       velocity.x *= std::pow(0.01f, time_passed);
       velocity.y *= std::pow(0.2f, time_passed);
       velocity.z *= std::pow(0.5f, time_passed);
+      sound.play_sine(std::fabs(velocity.z) * 10.0f);
+      sound.update();
    }
 
    const Vector3& get_position() {
@@ -133,12 +137,15 @@ static void init() {
 
    InitWindow(screenWidth, screenHeight, "Ryskim");
    SetTargetFPS(60);
+
+   audio::init();
 }
 
 /**
  * Shuts the game down
  **/
 static void shutdown() {
+   audio::shutdown();
    CloseWindow();
 }
 
@@ -200,25 +207,25 @@ static void spawn_random_enemy(Enemies& enemies, Ryder& player, gfx::Scene& scen
                   255};
    Vector3 position = {x_distribution(generator),
                        0.5f,
-                       player.get_position().z - 40.0f};
+                       player.get_position().z - 70.0f};
    Enemy* enemy = new Enemy(position, scale, color);
    enemy->accelerate(0.0f, 0.0f, speed_distribution(generator));
    enemies.push_back(enemy);
    scene.add_object(enemy->get_model()); 
 }
 
-/**
- * Game main loop
- **/
-void run() {
-   init();
 
+/**
+ * Main game loop
+ **/
+void game_loop() {
    // generate level and renderer scene
    Level level;
    gfx::Scene scene(get_default_camera());
    float cam_distance = 10.0f;
 
    // build the road
+   // C. Jarmack - make this a unique_ptr?
    auto road = new gfx::Road(30.0f, -level.road_len, level.road_width);
    scene.add_object(road);
 
@@ -250,6 +257,15 @@ void run() {
       if (IsKeyDown(KEY_UP))
          ryder.accelerate(0.0f, 0.0f, -1.0f);
       ryder.update(GetFrameTime());
+
+      // ran out of road? create a new one
+      if (ryder.get_position().z < road->get_position().z) {
+         auto road_begin = ryder.get_position().z + 30.0f;
+         road = new gfx::Road(road_begin,
+                              road_begin - level.road_len,
+                              level.road_width);
+         scene.add_object(road); 
+      }
 
       // update follow cam
       scene.get_camera().position.z = ryder.get_position().z + cam_distance;
@@ -331,7 +347,14 @@ void run() {
       DrawFPS(10, 10);
       EndDrawing();
    }
+}
 
+/**
+ * Run the game 
+ **/
+void run() {
+   init();
+   game_loop();
    shutdown();
 }
 

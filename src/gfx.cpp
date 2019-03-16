@@ -5,6 +5,7 @@
    Author: Cro Magnon, 2019
 */
 #include <algorithm>
+#include <iostream>
 
 #include "gfx.h"
 #include "util.h"
@@ -56,14 +57,14 @@ Road::Road(float z1, float z2, float width) {
    roadblock.color = GRAY;
    roadblock.pos.x = 0.0f;
    roadblock.pos.y = -0.2f; //#roadblock.pos.x - width / 2.0f
-   roadblock.pos.z = (z1 - z2) / -2.0f;
+   roadblock.pos.z = (z1 + z2) / 2.0f;
    roadblock.size.x = width;
    roadblock.size.y = 0.4f;
    roadblock.size.z = z1 - z2;
 }
 
 void Road::translate(float x, float y, float z) {
-   // roads don't move
+   translate_position(roadblock.pos, x, y, z);
 }
 
 const Vector3& Road::get_position() {

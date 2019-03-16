@@ -22,6 +22,7 @@ add_executable (ryskim
 	"src/game.cpp"
     "src/main.cpp"
 	"src/gfx.cpp"
+	"src/audio.cpp"
     )
 
 target_link_libraries(ryskim raylib)
