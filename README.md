@@ -9,19 +9,33 @@ I'll give you access to the codebase Ada Typical, Bilbo Bellic and Cro Magnon wr
 Specifically, those are the issues I'd like you to look into:
 
 ## 1. DRM
-A. Typical was tasked with the most important aspect of the game - the copy protection. My CTO told me she was using a mechanism which was used two decades ago and doesn't provide a great user experience. But I'm actually more worried that the implementation itself might be subpar. Could you check if it's possible to circumvent the copy protection in two cases:
-
-- The user has access to the binary.
-- The user does not have access to the binary, so when Ryskim is running on a closed system like a console or some server.
+A. Typical was tasked with the most important aspect of the game - the copy protection. My CTO told me she was using a mechanism which was used two decades ago and doesn't provide a great user experience. But I'm actually more worried that the implementation itself might be subpar. 
 
 You can find A. Typical's work in src/drm.h and src/drm.cpp. I think Cohn also left some sour comment in main.cpp, perhaps it can help. It seems A. Typical is coming from a C background and only partially adopted C++ practices.
 
-Can you give suggestions on how to improve this?
+Could you please investigate the following points:
+
+### 1.1. Analyze binary
+
+Suppose the user has access to the binary, can you circumvent the copy protection? Perhaps with a hex editor or similar?
+
+### 1.2. Crack
+
+Our intern, Dorian Dactic, was tasked with writing a crack to retrieve the copy protection data from the binary automatically. Unfortunately he failed epically.
+Could you fix his code and get the crack to work?
+It's here: https://raw.githubusercontent.com/m-toman/osue_exercise1/gh-pages/crack_tofix.c
+
+### 1.3. Without access to the binary
+
+Now let's assume the user doesn't have access to the binary itself but can run Ryskim, like on a console or a game streaming service. Or the DRM is actually verified on the server. Cohn thinks a buffer overflow should be able to crack that easily.
+Could you give suggestions on how to improve this code?
 
 
 ## 2. Memory issues
 
-B. Bellic was responsible for the game logic. The testers found that the game sucks up lots of memory after just 20 hours of gaming. Might be a memory leak or some similar issue.
-So please check src/game.h and src/game.cpp if there is some issue with the game logic that could lead to memory usage going up over time (Hint: check elements that are created and destroyed over the game lifetime).
+B. Bellic was responsible for the game logic. The testers found that the game sucks up lots of memory after just 20 hours of gaming. According to our statistics, typical sessions of our gamers last 34.3 hours, on average.
+Might be a memory leak or some similar issue.
 
-Could you suggest quick fixes or the problems you encounter and ideally also general architecture improvements to avoid such issues in future?
+Could you please check src/game.h and src/game.cpp if there is some issue with the game logic that could lead to memory usage going up over time.
+
+Also, could you suggest quick fixes for the problems you encounter - and ideally also general architecture improvements to avoid such issues in future?
