@@ -25,6 +25,8 @@ Our intern, Dorian Dactic, was tasked with writing a crack to retrieve the copy 
 Could you fix his code and get the crack to work?
 It's here: https://raw.githubusercontent.com/m-toman/osue_exercise1/gh-pages/crack_tofix.c
 
+(It's just reading out the binary. It would be great to have something that overrides the JMP to the DRM check with a NOP to have a real crack, but this is NOT part of our contract.)
+
 ### 1.3. Without access to the binary
 
 Now let's assume the user doesn't have access to the binary itself but can run Ryskim, like on a console or a game streaming service. Or the DRM is actually verified on the server. Cohn thinks a buffer overflow should be able to crack that easily.
