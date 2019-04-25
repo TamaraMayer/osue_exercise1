@@ -47,10 +47,10 @@ void Scene::draw() {
       it->draw();
 
       // ugly hack to get around the raylib MAX_TRIANGLES issue
-      if (++draws % 5 == 0) {
+      /*if (++draws % 5 == 0) {
          EndMode3D();
          BeginMode3D(camera);
-      }
+      }*/
    }
 }
 
@@ -125,7 +125,7 @@ const Vector3& Tree::get_position() {
 
 void Tree::draw() {
    DrawCubeV(stem.pos, stem.size, stem.color);
-   DrawSphere(leaves.pos, leaves.radius, leaves.color);
+   DrawSphereEx(leaves.pos, leaves.radius, 7, 7, leaves.color);
 }
 
 //================================ CAR =====================================

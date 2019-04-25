@@ -273,7 +273,7 @@ void game_loop() {
 
       // update follow cam
       scene.get_camera().position.z = ryder.get_position().z + cam_distance;
-      scene.get_camera().target.z = ryder.get_position().z - 7.0f - 0.1 * std::fabs(ryder.get_velocity().z);
+      scene.get_camera().target.z = ryder.get_position().z - 7.0f - 0.1f * std::fabs(ryder.get_velocity().z);
 
       // spawn new enemies
       if (GetTime() - last_spawn > level.spawn_interval) {
