@@ -4,7 +4,11 @@ You can find the story and the tasks here: https://m-toman.github.io/osue_exerci
 
 ## Build instructions
 
-### Linux
+### Windows
+
+Visual Studio 2015 solution and project files are available in folder visualstudio.
+
+### Linux and MacOSX
 
 ```
 mkdir build
