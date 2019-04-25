@@ -136,12 +136,12 @@ Car::Car(const Vector3& pos, float scale, const Color& color) {
    chassis.size.z = 2.0f * scale;
    chassis.color = color;
 
-   bounding_box.min = (Vector3){pos.x - chassis.size.x / 2.0f,
-                                pos.y - chassis.size.y / 2.0f,
-                                pos.z - chassis.size.z / 2.0f};
-   bounding_box.max = (Vector3){pos.x + chassis.size.x / 2.0f,
-                                pos.y + chassis.size.y / 2.0f,
-                                pos.z + chassis.size.z / 2.0f};
+   bounding_box.min = {pos.x - chassis.size.x / 2.0f,
+                       pos.y - chassis.size.y / 2.0f,
+                       pos.z - chassis.size.z / 2.0f};
+   bounding_box.max = {pos.x + chassis.size.x / 2.0f,
+                       pos.y + chassis.size.y / 2.0f,
+                       pos.z + chassis.size.z / 2.0f};
 }
 
 void Car::translate(float x, float y, float z) {

@@ -156,9 +156,11 @@ static void shutdown() {
  **/
 static Camera get_default_camera() {
    Camera camera = {0};
-   camera.position = (Vector3){0.0f, 15.0f, 10.0f};
-   camera.target = (Vector3){0.0f, 0.0f, 0.0f};
-   camera.up = (Vector3){0.0f, 1.0f, 0.0f};
+   camera.position.x = 0.0f;
+   camera.position.y = 15.0f;
+   camera.position.z = 10.0f;
+   camera.target = {0.0f, 0.0f, 0.0f};
+   camera.up = {0.0f, 1.0f, 0.0f};
    camera.fovy = 45.0f;
    camera.type = CAMERA_PERSPECTIVE;
 
@@ -170,8 +172,8 @@ static Camera get_default_camera() {
  **/
 static void generate_trees(gfx::Scene& scene, const Level& level) {
    std::default_random_engine generator;
-   std::normal_distribution<float> height_distribution(5.0, 0.01);
-   std::normal_distribution<float> width_distribution(3.0, 0.2);
+   std::normal_distribution<float> height_distribution(5.0f, 0.01f);
+   std::normal_distribution<float> width_distribution(3.0f, 0.2f);
    auto tree_dist = level.road_width / 2.0f + 1.0f;
    int tree_num = 0;
 
@@ -196,15 +198,15 @@ static void generate_trees(gfx::Scene& scene, const Level& level) {
  **/
 static void spawn_random_enemy(Enemies& enemies, Ryder& player, gfx::Scene& scene, Level& level) {
    static std::default_random_engine generator;
-   static std::uniform_int_distribution<unsigned char> color_distribution(50, 200);
+   static std::uniform_int_distribution<unsigned int> color_distribution(50, 200);
    static std::normal_distribution<float> scale_distribution(1.0f, 0.1f);
    static std::normal_distribution<float> speed_distribution(23.0f, 0.5f);
    float scale = scale_distribution(generator);
    std::uniform_real_distribution<float> x_distribution(
                         -(level.road_width - scale) / 2.0f,
                         (level.road_width - scale) / 2.0f);
-   Color color = {color_distribution(generator),
-                  color_distribution(generator),
+   Color color = {static_cast<unsigned char>(color_distribution(generator)),
+                  static_cast<unsigned char>(color_distribution(generator)),
                   255,
                   255};
    Vector3 position = {x_distribution(generator),
