@@ -16,10 +16,10 @@ namespace drm {
 // (A.Typical) for now we store the codes here, should move them to a safer place in future
 static const code_id MAX_CODES = 3;
 static const unsigned int MAX_CODE_LEN = 8;
-static const char* codes[] = {"ground", "fork", "powerup"};
 static const char* queries[] = {"Please enter the second word on page 5 in your handbook."
                                 , "Please enter the 10th word on page 10 in your handbook."
                                 , "Please enter the 7th word on page 3 in your handbook."};
+static const char* codes[] = { "ground", "fork", "powerup" };
 
 code_id get_random_code_id() {
    std::srand(std::time(nullptr));
